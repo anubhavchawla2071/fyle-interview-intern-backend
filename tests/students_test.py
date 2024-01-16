@@ -39,6 +39,25 @@ def test_post_assignment_null_content(client, h_student_1):
     assert response.status_code == 400
 
 
+def test_update_assignment_invalid_id(client, h_student_1):
+    """
+    failure case: id invalid
+    """
+
+    response = client.post(
+        '/student/assignments',
+        headers=h_student_1,
+        json={
+            'id': 15,
+            'content':"Test 1234"
+        })
+
+    assert response.status_code == 404
+
+
+
+
+
 def test_post_assignment_student_1(client, h_student_1):
     content = 'ABCD TESTPOST'
 
@@ -56,6 +75,34 @@ def test_post_assignment_student_1(client, h_student_1):
     assert data['state'] == 'DRAFT'
     assert data['teacher_id'] is None
 
+def test_update_assignment_null_content(client, h_student_1):
+    """
+    failure case: content cannot be null
+    """
+
+    response = client.post(
+        '/student/assignments',
+        headers=h_student_1,
+        json={
+            'id': 5,
+            'content': None
+        })
+    assert response.status_code == 400
+
+
+def test_update_assignment_content(client, h_student_1):
+    """
+    failure case: content cannot be null
+    """
+
+    response = client.post(
+        '/student/assignments',
+        headers=h_student_1,
+        json={
+            'id': 5,
+            'content': "Assignment updated"
+        })
+    assert response.status_code == 200    
 
 def test_submit_assignment_student_1(client, h_student_1):
     response = client.post(
@@ -73,6 +120,19 @@ def test_submit_assignment_student_1(client, h_student_1):
     assert data['state'] == 'SUBMITTED'
     assert data['teacher_id'] == 2
 
+
+def test_assignment_edit_draft_error(client, h_student_1):
+    response = client.post(
+        '/student/assignments',
+        headers=h_student_1,
+        json={
+            'id': 2,
+            'content':"new updated content"
+        })
+    error_response = response.json
+    assert response.status_code == 400
+    assert error_response['error'] == 'FyleError'
+    assert error_response["message"] == 'only assignment in draft state can be edited'
 
 def test_assignment_resubmit_error(client, h_student_1):
     response = client.post(

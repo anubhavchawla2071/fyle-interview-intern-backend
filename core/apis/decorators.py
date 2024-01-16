@@ -16,6 +16,9 @@ def accept_payload(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         incoming_payload = request.json
+        # print("Request Headers:", request.headers)
+        # print("Authenticated Principal:", p)
+        # print("Incoming Payload:", incoming_payload)
         return func(incoming_payload, *args, **kwargs)
     return wrapper
 
